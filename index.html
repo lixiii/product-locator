@@ -36,6 +36,11 @@
             <button class='btn btn-danger' id='drawScale'>Draw Scale</button>
             <button class='btn btn-info' id='calibrate'>Calibrate Scale</button>
           </div>
+          <hr>
+          <div class='form-group'>
+            <label>Floor Plan Information</label>
+            <button class='btn btn-danger' id='drawShelf'>Draw Shelf</button>
+          </div>
         </div>
         <div class='col-9'>
             <canvas id='_canvas' ></canvas>
@@ -90,7 +95,7 @@
     // first disable default listener and create drawScale listeners
     instruct("Select starting position");
     productInfo.scaleInitFlag = false;
-    removeDefaultMouseClickListener();
+    // removeDefaultMouseClickListener();
     canvas.addEventListener("mousedown", drawScaleListener);
     }
   }
@@ -122,7 +127,7 @@
 
       // end the routine by removing listener and adding default listener
       canvas.removeEventListener("mousedown", drawScaleListener);
-      addDefaultMouseClickListener();
+      // addDefaultMouseClickListener();
       instruct(`Scale coordinates:(${productInfo.scaleStartPos.x}, ${productInfo.scaleStartPos.y}) to (${productInfo.scaleEndPos.x}, ${productInfo.scaleEndPos.y}). Scale length on screen: ${productInfo.scaleLength}`);
     }
   }
@@ -131,6 +136,24 @@
     productInfo.scaleRealLength = $("#scaleValue").val();
     productInfo.scaleFactor = productInfo.scaleRealLength / productInfo.scaleLength;
     console.log(`scale factor: ${productInfo.scaleFactor}`);
+  }
+
+  /**
+   * Shelfing functions
+   * 
+   */
+  function drawShelf() {
+    // first disable default listener and create drawScale listeners
+    instruct("Shelfing: Select starting position");
+    productInfo.shelfFlag = false;
+    // removeDefaultMouseClickListener();
+    canvas.addEventListener("mousedown", drawShelfListener);
+  }
+
+  function drawShelfListener(e) {
+    if(productInfo.shelfFlag == false) {
+      // locate initial location
+    }
   }
 
   /**
@@ -148,17 +171,17 @@
     return productInfo.mouseClicks.pop();
   }
 
-  function addDefaultMouseClickListener() {
-    canvas.addEventListener("mousedown", defaultMouseClickListener, false);
-  }
+  // function addDefaultMouseClickListener() {
+  //   canvas.addEventListener("mousedown", defaultMouseClickListener, false);
+  // }
 
-  function removeDefaultMouseClickListener() {
-    canvas.removeEventListener("mousedown", defaultMouseClickListener);
-  }
+  // function removeDefaultMouseClickListener() {
+  //   canvas.removeEventListener("mousedown", defaultMouseClickListener);
+  // }
 
-  function defaultMouseClickListener(e) {
-    productInfo.mouseClicks.push(getMousePos(canvas, e));
-  }
+  // function defaultMouseClickListener(e) {
+  //   productInfo.mouseClicks.push(getMousePos(canvas, e));
+  // }
 
   function instruct(txt) {
     document.getElementById("instructions").innerHTML = txt;
@@ -182,6 +205,7 @@
   $('#loadImage').on("click", loadImage);
   $('#drawScale').on("click", drawScale);
   $('#calibrate').on("click", calibrate);
+  $('#drawShelf').on("click", drawShelf);
   
 
 </script>
