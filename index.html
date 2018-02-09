@@ -13,16 +13,28 @@
   <body>
     <div class="container-fluid">
       <div class='row'>
+        <div class='col'>
+        <div class='alert alert-success'>
+          <p> <b>Instructions:</b> <span id='instructions'> First load an image. </span> </p>
+        </div>
+      </div>
+      </div>
+
+      <div class='row'>
         
         <div class='col-3'>
+          
           <div class='form-group'>
               <label>Image URL</label>
               <input class='form-control' id='imageURL' value='test.jpg'> <br/>
               <button class="btn btn-success" id='loadImage'>Load image</button>
           </div>
+          <hr>
           <div class='form-group'>
-
-            
+            <label>Scale: enter distance in real life (unit meters)</label>
+            <input class='form-control' id='scaleValue' value='1'><br/>
+            <button class='btn btn-danger' id='drawScale'>Draw Scale</button>
+            <button class='btn btn-info' id='calibrate'>Calibrate Scale</button>
           </div>
         </div>
         <div class='col-9'>
@@ -46,7 +58,11 @@
   // begin canvas work
   var canvas = document.getElementById("_canvas");
   var ctx = canvas.getContext("2d");
-  
+  // object to store session variables
+  var productInfo = { mouseClicks:[], 
+    imageLoaded: false,
+      };
+
   /**
    * load image and reset variables
    */
@@ -57,6 +73,7 @@
       ctx.imageSmoothingEnabled = false;
       setCanvasDimension(storeImage.width , storeImage.height);
       ctx.drawImage(storeImage, 0, 0, storeImage.width , storeImage.height  );
+      productInfo.imageLoaded = true;
     }
   }
 
@@ -65,8 +82,106 @@
     document.getElementById("_canvas").setAttribute("height", h);
   }
 
+  /**
+   * Draw scale
+   */
+  function drawScale() {
+    if(productInfo.imageLoaded){
+    // first disable default listener and create drawScale listeners
+    instruct("Select starting position");
+    productInfo.scaleInitFlag = false;
+    removeDefaultMouseClickListener();
+    canvas.addEventListener("mousedown", drawScaleListener);
+    }
+  }
+
+  function drawScaleListener(e) {
+
+    if( productInfo.scaleInitFlag == false ) {
+      productInfo.scaleStartPos = getMousePos(canvas, e);
+      // draw dot on startPos
+      drawPoint(productInfo.scaleStartPos.x, productInfo.scaleStartPos.y, "red");
+      productInfo.scaleInitFlag = true; // the starting point has been drawn
+      instruct("Select final position");
+    } else {
+      // next draw the line and determine the scale
+      productInfo.scaleEndPos = getMousePos(canvas, e);
+
+      // draw the line
+      drawLine( productInfo.scaleStartPos.x, productInfo.scaleStartPos.y, productInfo.scaleEndPos.x, productInfo.scaleEndPos.y, "red" );
+      drawPoint(productInfo.scaleEndPos.x, productInfo.scaleEndPos.y, "red");
+
+      // compute length of line segment
+      var x1 = productInfo.scaleStartPos.x;
+      var y1 = productInfo.scaleStartPos.y;
+      var x2 = productInfo.scaleEndPos.x;
+      var y2 = productInfo.scaleEndPos.y;
+      productInfo.scaleLength = Math.sqrt( (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1) );
+      console.log(productInfo.scaleLength);
+      calibrate();
+
+      // end the routine by removing listener and adding default listener
+      canvas.removeEventListener("mousedown", drawScaleListener);
+      addDefaultMouseClickListener();
+      instruct(`Scale coordinates:(${productInfo.scaleStartPos.x}, ${productInfo.scaleStartPos.y}) to (${productInfo.scaleEndPos.x}, ${productInfo.scaleEndPos.y}). Scale length on screen: ${productInfo.scaleLength}`);
+    }
+  }
+
+  function calibrate() {
+    productInfo.scaleRealLength = $("#scaleValue").val();
+    productInfo.scaleFactor = productInfo.scaleRealLength / productInfo.scaleLength;
+    console.log(`scale factor: ${productInfo.scaleFactor}`);
+  }
+
+  /**
+   * Utility functions
+   */
+  function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+        x: (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+        y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+    };
+  }
+
+  function popLastMouseClick() {
+    return productInfo.mouseClicks.pop();
+  }
+
+  function addDefaultMouseClickListener() {
+    canvas.addEventListener("mousedown", defaultMouseClickListener, false);
+  }
+
+  function removeDefaultMouseClickListener() {
+    canvas.removeEventListener("mousedown", defaultMouseClickListener);
+  }
+
+  function defaultMouseClickListener(e) {
+    productInfo.mouseClicks.push(getMousePos(canvas, e));
+  }
+
+  function instruct(txt) {
+    document.getElementById("instructions").innerHTML = txt;
+  }
+
+  function drawLine(sx, sy, x, y, color) {
+    ctx.beginPath();
+    ctx.moveTo(sx, sy); // starting position
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    ctx.strokeStyle = "black";
+  }
+
+  function drawPoint(sx, sy, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(sx - 1,sy - 1,2,2);
+  }
+
   // jQuery hooks
   $('#loadImage').on("click", loadImage);
+  $('#drawScale').on("click", drawScale);
+  $('#calibrate').on("click", calibrate);
   
 
 </script>
