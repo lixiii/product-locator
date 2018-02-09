@@ -66,6 +66,8 @@
   // object to store session variables
   var productInfo = { mouseClicks:[], 
     imageLoaded: false,
+    scaleInitialised: false,
+    shelfs: [],
       };
 
   /**
@@ -129,6 +131,7 @@
       canvas.removeEventListener("mousedown", drawScaleListener);
       // addDefaultMouseClickListener();
       instruct(`Scale coordinates:(${productInfo.scaleStartPos.x}, ${productInfo.scaleStartPos.y}) to (${productInfo.scaleEndPos.x}, ${productInfo.scaleEndPos.y}). Scale length on screen: ${productInfo.scaleLength}`);
+      productInfo.scaleInitialised = true;
     }
   }
 
@@ -143,16 +146,50 @@
    * 
    */
   function drawShelf() {
-    // first disable default listener and create drawScale listeners
-    instruct("Shelfing: Select starting position");
-    productInfo.shelfFlag = false;
-    // removeDefaultMouseClickListener();
-    canvas.addEventListener("mousedown", drawShelfListener);
+    if(productInfo.scaleInitialised){
+      instruct("Shelfing: Select starting position");
+      productInfo.shelfFlag = false;
+      // removeDefaultMouseClickListener();
+      canvas.addEventListener("mousedown", drawShelfListener);
+    } else {
+      instruct("PLEASE INITIALISE SCALE FIRST");      
+    }
+    
   }
 
   function drawShelfListener(e) {
-    if(productInfo.shelfFlag == false) {
-      // locate initial location
+    if( productInfo.shelfFlag == false ) {
+      productInfo.shelfStartPos = getMousePos(canvas, e);
+      // draw dot on startPos
+      drawPoint(productInfo.shelfStartPos.x, productInfo.shelfStartPos.y, "blue");
+      productInfo.shelfFlag = true; // the starting point has been drawn
+      instruct("Select final position");
+    } else {
+      // next draw the line and determine the scale
+      productInfo.shelfEndPos = getMousePos(canvas, e);
+
+      // draw the line
+      drawLine( productInfo.shelfStartPos.x, productInfo.shelfStartPos.y, productInfo.shelfEndPos.x, productInfo.shelfEndPos.y, "blue" );
+      drawPoint(productInfo.shelfEndPos.x, productInfo.shelfEndPos.y, "blue");
+
+      // compute length of line segment
+      var x1 = productInfo.shelfStartPos.x;
+      var y1 = productInfo.shelfStartPos.y;
+      var x2 = productInfo.shelfEndPos.x;
+      var y2 = productInfo.shelfEndPos.y;
+      productInfo.shelfLength = Math.sqrt( (x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1) );
+      console.log(productInfo.shelfLength);
+
+      // end the routine by removing listener and saving the current shelf position
+      productInfo.shelfs.push({
+        shelfLength: productInfo.shelfLength,
+        actualLength: productInfo.shelfLength * productInfo.scaleFactor,
+        shelfStartPos: productInfo.shelfStartPos,
+        shelfEndPos: productInfo.shelfEndPos,
+      });
+      canvas.removeEventListener("mousedown", drawScaleListener);
+      // addDefaultMouseClickListener();
+      instruct(`Shelf coordinates:(${productInfo.shelfStartPos.x}, ${productInfo.shelfStartPos.y}) to (${productInfo.shelfEndPos.x}, ${productInfo.shelfEndPos.y}). Shelf length on screen: ${productInfo.scaleLength}. Actual Shelf length: ${productInfo.shelfLength * productInfo.scaleFactor}`);
     }
   }
 
