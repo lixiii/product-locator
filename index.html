@@ -41,10 +41,22 @@
             <label>Floor Plan Information</label>
             <input class='form-control' id='shelfName' placeholder="Shelf name"><br/>
             <button class='btn btn-danger' id='drawShelf'>Draw Shelf</button>
+            <button class='btn btn-info' id='saveShelf'>Save Shelf Info</button>
+          </div>
+          <hr>
+          <div class='form-group'>
+            <button class='btn btn-success' id='exportData'>Export Shelf Information</button><br/>
           </div>
         </div>
         <div class='col-9'>
             <canvas id='_canvas' ></canvas>
+        </div>
+      </div>
+      <hr>
+      <div class='row'>
+        <div class='col'>
+          <h5>Exported data (triple click to select all)</h5>
+          <textarea class='form-control' rows="10" disabled id='exportArea'></textarea>          
         </div>
       </div>
     </div>
@@ -69,6 +81,7 @@
     imageLoaded: false,
     scaleInitialised: false,
     shelfs: [],
+    shelfSaved: true,
       };
 
   /**
@@ -148,6 +161,8 @@
    */
   function drawShelf() {
     if(productInfo.scaleInitialised){
+      if(productInfo.shelfSaved == false) alert("Warning: the current shelf information has not been saved. Click save before you start drawing to save the last drawn shelf. Otherwise, the data will be lost (even though on the picture the line is still present). ");
+      productInfo.shelfSaved = false;
       instruct("Shelfing: Select starting position");
       productInfo.shelfFlag = false;
       canvas.addEventListener("mousedown", drawShelfListener);
@@ -182,7 +197,7 @@
 
       // end the routine by removing listener and saving the current shelf position
       var sf = productInfo.scaleFactor;
-      productInfo.shelfs.push({
+      productInfo.tempShelf = {
         name: $("#shelfName").val(),
         length: productInfo.shelfLength,
         startPos: productInfo.shelfStartPos,
@@ -190,10 +205,23 @@
         actualLength: productInfo.shelfLength * productInfo.scaleFactor,
         actualStartPos: {x: productInfo.shelfStartPos.x * sf, y: productInfo.shelfStartPos.y * sf},
         actualEndPos: {x: productInfo.shelfEndPos.x * sf, y: productInfo.shelfEndPos.y * sf},
-      });
+      };
       canvas.removeEventListener("mousedown", drawShelfListener);
       instruct(`Shelf (${$("#shelfName").val()}) coordinates:(${productInfo.shelfStartPos.x}, ${productInfo.shelfStartPos.y}) to (${productInfo.shelfEndPos.x}, ${productInfo.shelfEndPos.y}). Shelf length on screen: ${productInfo.scaleLength}. Actual Shelf length: ${productInfo.shelfLength * productInfo.scaleFactor}`);
     }
+  }
+
+  function saveShelf() {
+    if(productInfo.shelfSaved == false) {
+      productInfo.shelfSaved = true;
+      productInfo.shelfs.push( productInfo.tempShelf );
+      instruct(`Shelf information for shelf named "${productInfo.tempShelf.name}" saved.`)
+    } 
+    else alert("Fatal error: You have already saved this shelf")
+  }
+
+  function exportData() {
+    document.getElementById('exportArea').innerHTML = JSON.stringify(productInfo.shelfs);
   }
 
   /**
@@ -230,6 +258,8 @@
   $('#drawScale').on("click", drawScale);
   $('#calibrate').on("click", calibrate);
   $('#drawShelf').on("click", drawShelf);
+  $('#saveShelf').on("click", saveShelf);
+  $('#exportData').on("click", exportData);saveShelf
   
 
 </script>
