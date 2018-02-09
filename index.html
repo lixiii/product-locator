@@ -39,6 +39,7 @@
           <hr>
           <div class='form-group'>
             <label>Floor Plan Information</label>
+            <input class='form-control' id='shelfName' placeholder="Shelf name"><br/>
             <button class='btn btn-danger' id='drawShelf'>Draw Shelf</button>
           </div>
         </div>
@@ -182,6 +183,7 @@
       // end the routine by removing listener and saving the current shelf position
       var sf = productInfo.scaleFactor;
       productInfo.shelfs.push({
+        name: $("#shelfName").val(),
         length: productInfo.shelfLength,
         startPos: productInfo.shelfStartPos,
         endPos: productInfo.shelfEndPos,
@@ -190,7 +192,7 @@
         actualEndPos: {x: productInfo.shelfEndPos.x * sf, y: productInfo.shelfEndPos.y * sf},
       });
       canvas.removeEventListener("mousedown", drawShelfListener);
-      instruct(`Shelf coordinates:(${productInfo.shelfStartPos.x}, ${productInfo.shelfStartPos.y}) to (${productInfo.shelfEndPos.x}, ${productInfo.shelfEndPos.y}). Shelf length on screen: ${productInfo.scaleLength}. Actual Shelf length: ${productInfo.shelfLength * productInfo.scaleFactor}`);
+      instruct(`Shelf (${$("#shelfName").val()}) coordinates:(${productInfo.shelfStartPos.x}, ${productInfo.shelfStartPos.y}) to (${productInfo.shelfEndPos.x}, ${productInfo.shelfEndPos.y}). Shelf length on screen: ${productInfo.scaleLength}. Actual Shelf length: ${productInfo.shelfLength * productInfo.scaleFactor}`);
     }
   }
 
