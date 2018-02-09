@@ -64,7 +64,7 @@
   var canvas = document.getElementById("_canvas");
   var ctx = canvas.getContext("2d");
   // object to store session variables
-  var productInfo = { mouseClicks:[], 
+  var productInfo = { 
     imageLoaded: false,
     scaleInitialised: false,
     shelfs: [],
@@ -97,7 +97,6 @@
     // first disable default listener and create drawScale listeners
     instruct("Select starting position");
     productInfo.scaleInitFlag = false;
-    // removeDefaultMouseClickListener();
     canvas.addEventListener("mousedown", drawScaleListener);
     }
   }
@@ -129,7 +128,6 @@
 
       // end the routine by removing listener and adding default listener
       canvas.removeEventListener("mousedown", drawScaleListener);
-      // addDefaultMouseClickListener();
       instruct(`Scale coordinates:(${productInfo.scaleStartPos.x}, ${productInfo.scaleStartPos.y}) to (${productInfo.scaleEndPos.x}, ${productInfo.scaleEndPos.y}). Scale length on screen: ${productInfo.scaleLength}`);
       productInfo.scaleInitialised = true;
     }
@@ -149,7 +147,6 @@
     if(productInfo.scaleInitialised){
       instruct("Shelfing: Select starting position");
       productInfo.shelfFlag = false;
-      // removeDefaultMouseClickListener();
       canvas.addEventListener("mousedown", drawShelfListener);
     } else {
       instruct("PLEASE INITIALISE SCALE FIRST");      
@@ -191,7 +188,6 @@
         actualEndPos: {x: productInfo.shelfEndPos.x * sf, y: productInfo.shelfEndPos.y * sf},
       });
       canvas.removeEventListener("mousedown", drawShelfListener);
-      // addDefaultMouseClickListener();
       instruct(`Shelf coordinates:(${productInfo.shelfStartPos.x}, ${productInfo.shelfStartPos.y}) to (${productInfo.shelfEndPos.x}, ${productInfo.shelfEndPos.y}). Shelf length on screen: ${productInfo.scaleLength}. Actual Shelf length: ${productInfo.shelfLength * productInfo.scaleFactor}`);
     }
   }
@@ -206,22 +202,6 @@
         y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
     };
   }
-
-  // function popLastMouseClick() {
-  //   return productInfo.mouseClicks.pop();
-  // }
-
-  // function addDefaultMouseClickListener() {
-  //   canvas.addEventListener("mousedown", defaultMouseClickListener, false);
-  // }
-
-  // function removeDefaultMouseClickListener() {
-  //   canvas.removeEventListener("mousedown", defaultMouseClickListener);
-  // }
-
-  // function defaultMouseClickListener(e) {
-  //   productInfo.mouseClicks.push(getMousePos(canvas, e));
-  // }
 
   function instruct(txt) {
     document.getElementById("instructions").innerHTML = txt;
