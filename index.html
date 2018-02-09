@@ -181,13 +181,16 @@
       console.log(productInfo.shelfLength);
 
       // end the routine by removing listener and saving the current shelf position
+      var sf = productInfo.scaleFactor;
       productInfo.shelfs.push({
-        shelfLength: productInfo.shelfLength,
+        length: productInfo.shelfLength,
+        startPos: productInfo.shelfStartPos,
+        endPos: productInfo.shelfEndPos,
         actualLength: productInfo.shelfLength * productInfo.scaleFactor,
-        shelfStartPos: productInfo.shelfStartPos,
-        shelfEndPos: productInfo.shelfEndPos,
+        actualStartPos: {x: productInfo.shelfStartPos.x * sf, y: productInfo.shelfStartPos.y * sf},
+        actualEndPos: {x: productInfo.shelfEndPos.x * sf, y: productInfo.shelfEndPos.y * sf},
       });
-      canvas.removeEventListener("mousedown", drawScaleListener);
+      canvas.removeEventListener("mousedown", drawShelfListener);
       // addDefaultMouseClickListener();
       instruct(`Shelf coordinates:(${productInfo.shelfStartPos.x}, ${productInfo.shelfStartPos.y}) to (${productInfo.shelfEndPos.x}, ${productInfo.shelfEndPos.y}). Shelf length on screen: ${productInfo.scaleLength}. Actual Shelf length: ${productInfo.shelfLength * productInfo.scaleFactor}`);
     }
@@ -204,9 +207,9 @@
     };
   }
 
-  function popLastMouseClick() {
-    return productInfo.mouseClicks.pop();
-  }
+  // function popLastMouseClick() {
+  //   return productInfo.mouseClicks.pop();
+  // }
 
   // function addDefaultMouseClickListener() {
   //   canvas.addEventListener("mousedown", defaultMouseClickListener, false);
