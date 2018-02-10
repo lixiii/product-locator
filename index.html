@@ -46,10 +46,6 @@
                 <button class='btn btn-info' id='saveShelf'>Save Info</button>
             </div>
           </div>
-          <hr>
-          <div class='form-group'>
-            <button class='btn btn-success' id='exportData'>Export Shelf Information</button><br/>
-          </div>
         </div>
         <div class='col-9'>
             <canvas id='_canvas' ></canvas>
@@ -58,7 +54,10 @@
       <hr>
       <div class='row'>
         <div class='col'>
-          <h5>Exported data (triple click to select all). <span class="badge badge-info" id='dataCount'></span> </h5>
+            <div class='form-group'>
+              <button class='btn btn-success' id='exportData'>Export Shelf Information</button><br/>
+            </div>
+          <h5>Exported data (triple click to select all). Data count: <span class="badge badge-info" id='dataCount'>0</span> </h5>
           <textarea class='form-control' rows="10" disabled id='exportArea'></textarea>          
         </div>
       </div>
