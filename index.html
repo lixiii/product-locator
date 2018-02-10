@@ -26,22 +26,25 @@
           
           <div class='form-group'>
               <label>Image URL</label>
-              <input class='form-control' id='imageURL' value='test.jpg'> <br/>
+              <input class='form-control' id='imageURL' value='test2.jpg'> <br/>
               <button class="btn btn-success" id='loadImage'>Load image</button>
           </div>
           <hr>
           <div class='form-group'>
             <label>Scale: enter distance in real life (unit meters)</label>
-            <input class='form-control' id='scaleValue' value='1'><br/>
+            <input class='form-control' id='scaleValue' value='1.25'><br/>
             <button class='btn btn-danger' id='drawScale'>Draw Scale</button>
             <button class='btn btn-info' id='calibrate'>Calibrate Scale</button>
           </div>
           <hr>
           <div class='form-group'>
             <label>Floor Plan Information</label>
-            <input class='form-control' id='shelfName' placeholder="Shelf name"><br/>
-            <button class='btn btn-danger' id='drawShelf'>Draw Shelf</button>
-            <button class='btn btn-info' id='saveShelf'>Save Shelf Info</button>
+            <input class='form-control' id='shelfName' placeholder="Shelf/Point name"><br/>
+            <div class='btn-group'>
+                <button class='btn btn-danger' id='drawShelf'>Draw Shelf</button>
+                <button class='btn btn-primary' id='drawTarget'>Draw Point</button>
+                <button class='btn btn-info' id='saveShelf'>Save Info</button>
+            </div>
           </div>
           <hr>
           <div class='form-group'>
@@ -169,7 +172,6 @@
     } else {
       instruct("PLEASE INITIALISE SCALE FIRST");      
     }
-    
   }
 
   function drawShelfListener(e) {
@@ -205,6 +207,7 @@
         actualLength: productInfo.shelfLength * productInfo.scaleFactor,
         actualStartPos: {x: productInfo.shelfStartPos.x * sf, y: productInfo.shelfStartPos.y * sf},
         actualEndPos: {x: productInfo.shelfEndPos.x * sf, y: productInfo.shelfEndPos.y * sf},
+        isPoint: false,
       };
       canvas.removeEventListener("mousedown", drawShelfListener);
       instruct(`Shelf (${$("#shelfName").val()}) coordinates:(${productInfo.shelfStartPos.x}, ${productInfo.shelfStartPos.y}) to (${productInfo.shelfEndPos.x}, ${productInfo.shelfEndPos.y}). Shelf length on screen: ${productInfo.scaleLength}. Actual Shelf length: ${productInfo.shelfLength * productInfo.scaleFactor}`);
@@ -218,6 +221,45 @@
       instruct(`Shelf information for shelf named "${productInfo.tempShelf.name}" saved.`)
     } 
     else alert("Fatal error: You have already saved this shelf")
+  }
+
+  /**
+   * Drawing a point
+   * 
+   */
+
+  function drawTarget() {
+    if(productInfo.scaleInitialised){
+      if(productInfo.shelfSaved == false) alert("Warning: the current shelf information has not been saved. Click save before you start drawing to save the last drawn shelf. Otherwise, the data will be lost (even though on the picture the line is still present). ");
+      productInfo.shelfSaved = false;
+      instruct("Drawing a point: Enter the name of the point and select the location of the point. ");
+      canvas.addEventListener("mousedown", drawTargetListener);
+    } else {
+      instruct("PLEASE INITIALISE SCALE FIRST");      
+    }
+  }
+
+  function drawTargetListener(e) {
+    pointPos = getMousePos(canvas, e);
+    drawPoint(pointPos.x, pointPos.y, "green");
+    var sf = productInfo.scaleFactor;
+    /**
+     * POINT OBJECTS have 0 length and the start and end positions are the same.
+     * IN ADDITION, isPoint = true;
+     */
+    productInfo.tempShelf = {
+      name: $("#shelfName").val(),
+      length: 0,
+      startPos: pointPos,
+      endPos: pointPos,
+      actualLength: 0,
+      actualStartPos: {x: pointPos.x * sf, y: pointPos.y * sf},
+      actualEndPos: {x: pointPos.x * sf, y: pointPos.y * sf},
+      isPoint: true,
+    };
+    canvas.removeEventListener("mousedown", drawTargetListener);
+    instruct(`Point drawn has coordinates (${pointPos.x}, ${pointPos.y}), and real coordinates (${pointPos.x * sf}, ${pointPos.y * sf})`);
+    
   }
 
   function exportData() {
@@ -260,7 +302,8 @@
   $('#calibrate').on("click", calibrate);
   $('#drawShelf').on("click", drawShelf);
   $('#saveShelf').on("click", saveShelf);
-  $('#exportData').on("click", exportData);saveShelf
+  $('#drawTarget').on("click", drawTarget);
+  $('#exportData').on("click", exportData);
   
 
 </script>
